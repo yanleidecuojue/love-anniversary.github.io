@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>与你同在</title>
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            font-family: Helvetica Neue, Helvetica, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;            
+            /* background-image: url('./static/back.jpeg');
+            background-repeat: no-repeat;
+            background-position: center; */
+            height: 100vh;
+            background-size: cover;
+            font-size: 85%;
+            margin: 0;
+        }
+        
+        h2 {
+            font-size: 220%;
+            font-weight: 400;
+        }
+        
+        .content {
+
+        }
+        
+        .timer {
+            font-size: 180%;
+            line-height: 1.5;
+            margin: 1em 0;
+        }
+        
+        .timer b {
+            color: rgb(253, 99, 125);
+        }
+        h2 b {
+            color: rgb(253, 99, 125);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="content">
+        <div id="particle-container" style="height: 100vh;">
+            <canvas id="particle-canvas" style="height: 100vh;"></canvas>
+        </div>
+        <div style="position: fixed; top: 24%; text-align: center; width: 100%;">
+            <h2><b>2025</b>年<b>05</b>月<b>01</b>日，我们在一起了</h2>
+            <div class="timer">
+                在一起已经 <b id="togatherDays"></b> Days <b id="togatherHours"></b> Hours <b id="togatherMinutes"></b> Minutes <b id="togatherSeconds"></b> Seconds
+            </div>
+
+            <div class="timer">
+                认识已经 <b id="meetDays"></b> Days <b id="meetHours"></b> Hours <b id="meetMinutes"></b> Minutes <b id="meetSeconds"></b> Seconds
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function timer() {
+          var togatherStart= '2025/05/15 21:13:14';
+          var meetStart = '2025/05/01 15:13:14'
+          var timeEnd = new Date();
+          var t = timeEnd.getTime() - new Date(togatherStart).getTime();
+
+          var h = ~~(t / 1000 / 60 / 60 % 24);
+          if (h < 10) {
+            h = "0" + h;
+          }
+          var m = ~~(t / 1000 / 60 % 60);
+          if (m < 10) {
+            m = "0" + m;
+          }
+          var s = ~~(t / 1000 % 60);
+          if (s < 10) {
+            s = "0" + s;
+          }
+          document.getElementById('togatherDays').innerHTML = ~~(t / 1000 / 60 / 60 / 24);
+          document.getElementById('togatherHours').innerHTML = h;
+          document.getElementById('togatherMinutes').innerHTML = m;
+          document.getElementById('togatherSeconds').innerHTML = s;
+
+          var meetT = timeEnd.getTime() - new Date(meetStart).getTime();
+
+          var meetH = ~~(meetT / 1000 / 60 / 60 % 24);
+          if (meetH < 10) {
+            meetH = "0" + meetH;
+          }
+          var meetM = ~~(meetT / 1000 / 60 % 60);
+          if (meetM < 10) {
+            meetM = "0" + meetM;
+          }
+          var meetS = ~~(meetT / 1000 % 60);
+          if (meetS < 10) {
+            meetS = "0" + meetS;
+          }
+          document.getElementById('meetDays').innerHTML = ~~(meetT / 1000 / 60 / 60 / 24);
+          document.getElementById('meetHours').innerHTML = meetH;
+          document.getElementById('meetMinutes').innerHTML = meetM;
+          document.getElementById('meetSeconds').innerHTML = meetS;
+        }
+        function createParticles() {
+            const particleContainer = document.getElementById('particle-container');
+            const canvas = document.getElementById('particle-canvas');
+            const context = canvas.getContext('2d');
+            const particles = [];
+
+            // 设置画布大小为容器大小
+            canvas.width = particleContainer.clientWidth;
+            canvas.height = particleContainer.clientHeight;
+
+            // 创建粒子对象
+            function Particle(x, y, radius, color, speedX, speedY) {
+                this.x = x;
+                this.y = y;
+                this.radius = radius;
+                this.color = color;
+                this.speedX = speedX;
+                this.speedY = speedY;
+            }
+
+            // 更新粒子位置
+            Particle.prototype.update = function() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                // 边界检测，使粒子在画布内移动
+                if (this.x + this.radius > canvas.width || this.x - this.radius < 0) {
+                this.speedX = -this.speedX;
+                }
+                if (this.y + this.radius > canvas.height || this.y - this.radius < 0) {
+                this.speedY = -this.speedY;
+                }
+            };
+
+            // 绘制粒子
+            Particle.prototype.draw = function() {
+                context.beginPath();
+                context.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                context.fillStyle = this.color;
+                context.fill();
+            };
+
+            // 生成随机颜色
+            function randomColor() {
+                const colors = ['#FF6138', '#FFBE53', '#2980B9', '#282741', '#F7FD04'];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
+
+            // 生成随机速度
+            function randomSpeed() {
+                return (Math.random() - 0.5) * 2; // 随机速度范围为-1到1之间
+            }
+
+            // 创建粒子并添加到数组中
+            for (let i = 0; i < 100; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const radius = Math.random() * 3 + 1;
+                const color = randomColor();
+                const speedX = randomSpeed();
+                const speedY = randomSpeed();
+
+                const particle = new Particle(x, y, radius, color, speedX, speedY);
+                particles.push(particle);
+            }
+
+            // 动画循环
+            function animateParticles() {
+                // 清空画布
+                context.clearRect(0, 0, canvas.width, canvas.height);
+
+                // 更新和绘制粒子
+                for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                }
+
+                // 循环调用动画函数
+                requestAnimationFrame(animateParticles);
+            }
+
+            // 开始动画
+            animateParticles();
+            }
+
+            // 页面加载完成后执行
+            window.addEventListener('load', () => {
+            createParticles();
+        });
+        timer();
+        setInterval(timer, 1000);
+
+        
+    </script>
+</body>
+
+</html>
+
